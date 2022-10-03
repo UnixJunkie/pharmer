@@ -1,0 +1,44 @@
+#!/bin/python3
+
+import os, sys
+
+debug_mode   = False
+profile_mode = False
+
+link_flags = " -ljsoncpp -lopenbabel -leigen3 -lboost -ltcmalloc "
+common_flags = " -W -Wall \
+-I/usr/include/jsoncpp \
+-I/usr/include/openbabel-2.0 \
+-I/usr/include/eigen3 \
+-I/usr/include/boost "
+parse_flags_content = " -O3 -DNDEBUG " + common_flags
+
+# dont' pollute current dir with compilation product files
+VariantDir('build', '.', duplicate=0)
+
+env = Environment (ENV = {'PATH' : os.environ['PATH'], # used by colorgcc
+                          'TERM' : os.environ['TERM'],
+                          'HOME' : os.environ['HOME']},
+                   CXX = "g++",
+                   CCFLAGS = parse_flags_content,
+                   LINKFLAGS = link_flags)
+
+ranker_prog = env.Program('pharmer', ['main.cpp'])
+
+## other source files
+# 'BoundingBox.cpp',
+# 'Corresponder.cpp',
+# 'Excluder.cpp',
+# 'PMol.cpp',
+# 'PharmerQuery.cpp',
+# 'PharmerServer.cpp',
+# 'QueryTripletFingerprint.cpp',
+# 'RMSD.cpp',
+# 'SphereGrid.cpp',
+# 'ThreePointData.cpp',
+# 'Triplet.cpp',
+# 'TripletFingerprint.cpp',
+# 'basis.cpp',
+# 'pharmarec.cpp',
+# 'pharmerdb.cpp',
+# 'tripletmatching.cpp'])
