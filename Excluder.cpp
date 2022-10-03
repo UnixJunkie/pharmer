@@ -8,6 +8,7 @@
 #include "Excluder.h"
 #include <string>
 #include <cmath>
+#include <iostream>
 
 //read exclusion sphere points from a json formatted stream
 //and add to excluder
