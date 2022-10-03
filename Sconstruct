@@ -5,7 +5,7 @@ import os, sys
 debug_mode   = False
 profile_mode = False
 
-link_flags = " -ljsoncpp -lopenbabel -leigen3 -lboost -ltcmalloc "
+link_flags = " -ljsoncpp -lopenbabel -lboost_filesystem "
 common_flags = " -W -Wall \
 -I/usr/include/jsoncpp \
 -I/usr/include/openbabel-2.0 \
@@ -23,22 +23,20 @@ env = Environment (ENV = {'PATH' : os.environ['PATH'], # used by colorgcc
                    CCFLAGS = parse_flags_content,
                    LINKFLAGS = link_flags)
 
-ranker_prog = env.Program('pharmer', ['main.cpp'])
-
-## other source files
-# 'BoundingBox.cpp',
-# 'Corresponder.cpp',
-# 'Excluder.cpp',
-# 'PMol.cpp',
-# 'PharmerQuery.cpp',
-# 'PharmerServer.cpp',
-# 'QueryTripletFingerprint.cpp',
-# 'RMSD.cpp',
-# 'SphereGrid.cpp',
-# 'ThreePointData.cpp',
-# 'Triplet.cpp',
-# 'TripletFingerprint.cpp',
-# 'basis.cpp',
-# 'pharmarec.cpp',
-# 'pharmerdb.cpp',
-# 'tripletmatching.cpp'])
+ranker_prog = env.Program('pharmer', ['main.cpp',
+                                      'BoundingBox.cpp',
+                                      'Corresponder.cpp',
+                                      'Excluder.cpp',
+                                      'PMol.cpp',
+                                      'PharmerQuery.cpp',
+                                      # 'PharmerServer.cpp', # for people who need a CGI server/service
+                                      'QueryTripletFingerprint.cpp',
+                                      'RMSD.cpp',
+                                      'SphereGrid.cpp',
+                                      'ThreePointData.cpp',
+                                      'Triplet.cpp',
+                                      'TripletFingerprint.cpp',
+                                      'basis.cpp',
+                                      'pharmarec.cpp',
+                                      'pharmerdb.cpp',
+                                      'tripletmatching.cpp'])
