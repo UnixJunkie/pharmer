@@ -159,7 +159,7 @@ class PMol
 	char *adjlists[MAX_BONDS]; //cast to adjlist and iterate carefully
 	char *name;
 	PMolHeader header;
-	// char buffer[]; // FBR: removes a compilation error
+        char buffer[];
 
 	PMol() :
 		atomtypes(NULL), iso(NULL), chg(NULL)
