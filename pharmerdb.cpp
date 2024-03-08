@@ -304,48 +304,48 @@ void PharmerDatabaseCreator::initializeDatabases()
 	//initialize self-managed flat file databases
 	//open for writing
 	//info
-	filesystem::path ipath = dbpath;
+	boost::filesystem::path ipath = dbpath;
 	ipath /= "info";
-	assert(!filesystem::exists(ipath));
+	assert(!boost::filesystem::exists(ipath));
 	info = fopen(ipath.string().c_str(), "w+"); //create
 	assert(info);
 
 	//human readable pharmacophore classes
-	filesystem::path lpath = dbpath;
+	boost::filesystem::path lpath = dbpath;
 	lpath /= "lookup";
 	lookup = fopen(lpath.string().c_str(), "w"); //create
 	assert(lookup);
 
 	//mid index (to better support lots of conformers)
-	filesystem::path mpath = dbpath;
+	boost::filesystem::path mpath = dbpath;
 	mpath /= "mids";
 	midList = fopen(mpath.string().c_str(), "w"); //create
 	assert(midList);
 
 	//moldata
-	filesystem::path mdpath = dbpath;
+	boost::filesystem::path mdpath = dbpath;
 	mdpath /= "molData";
 	molData = fopen(mdpath.string().c_str(), "w+");
 	assert(molData);
 
 	//smina data
 #ifdef OUTPUTSMINA
-	filesystem::path smipath = dbpath / "sminaIndex";
+	boost::filesystem::path smipath = dbpath / "sminaIndex";
 	sminaIndex = fopen(smipath.string().c_str(), "w+");
 	assert(sminaIndex);
-	filesystem::path smdpath = dbpath / "sminaData";
+	boost::filesystem::path smdpath = dbpath / "sminaData";
 	sminaData = fopen(smdpath.string().c_str(), "w+");
 	assert(sminaData);
 #endif
 
 	//bincnts
-	filesystem::path binpath = dbpath;
+	boost::filesystem::path binpath = dbpath;
 	binpath /= "binCnts";
 	binData = fopen(binpath.string().c_str(), "w+");
 	assert(binData);
 
 	//output pharmas
-	filesystem::path phpath = dbpath / "pharmas";
+	boost::filesystem::path phpath = dbpath / "pharmas";
 	ofstream pharmout(phpath.string().c_str());
 	pharmas.write(pharmout);
 
@@ -354,7 +354,7 @@ void PharmerDatabaseCreator::initializeDatabases()
 	for (int i = 0, n = tindex.size(); i < n; i++)
 	{
 		string pname = string("pointData_") + lexical_cast<string> (i);
-		filesystem::path pdpath = dbpath / pname;
+		boost::filesystem::path pdpath = dbpath / pname;
 		pointDataFiles[i] = PointDataFile(pdpath.string(), i);
 	}
 
@@ -731,7 +731,7 @@ unsigned long PharmerDatabaseCreator::doSplitNewPage(unsigned pharma, FILE *geoF
 	GeoKDPage page;
 
 	//reserve space
-	unique_lock<shared_mutex> lock(fileAccessLock);
+        boost::unique_lock<shared_mutex> lock(fileAccessLock);
 	fseek(geoFile, 0, SEEK_END);
 	unsigned long location = ftell(geoFile);
 	assert(location % sizeof(GeoKDPage) == 0);
@@ -789,7 +789,7 @@ void PharmerDatabaseCreator::createIJKSpatialIndex(int p)
 
 	//open
 	string gname = string("geoData_") + lexical_cast<string> (p);
-	filesystem::path gpath = dbpath / gname;
+	boost::filesystem::path gpath = dbpath / gname;
 	FILE * geoFile= fopen(gpath.string().c_str(), "w");
 	geoDataFiles[p] = geoFile;
 	assert(geoFile);
@@ -835,7 +835,7 @@ void PharmerDatabaseSearcher::initializeDatabases()
 	//initialize self-managed flat file databases
 	//open for reading
 	//info - and read it in
-	filesystem::path ipath = dbpath;
+	boost::filesystem::path ipath = dbpath;
 	ipath /= "info";
 	info = fopen(ipath.string().c_str(), "r");
 	assert(info);
@@ -847,7 +847,7 @@ void PharmerDatabaseSearcher::initializeDatabases()
 	}
 
 	//pharmas
-	filesystem::path pharmpath = dbpath / "pharmas";
+	boost::filesystem::path pharmpath = dbpath / "pharmas";
 	ifstream pharmain(pharmpath.string().c_str());
 	if (!pharmas.read(pharmain))
 	{
@@ -858,27 +858,27 @@ void PharmerDatabaseSearcher::initializeDatabases()
 	tindex.set(pharmas.size());
 
 	//moldata
-	filesystem::path mdpath = dbpath;
+	boost::filesystem::path mdpath = dbpath;
 	mdpath /= "molData";
 	molData.map(mdpath.string(), true, true);
 
 	//smina index and data - do not need to exist
-	filesystem::path smIndex = dbpath / "sminaIndex";
-	if(filesystem::exists(smIndex))
+	boost::filesystem::path smIndex = dbpath / "sminaIndex";
+	if(boost::filesystem::exists(smIndex))
 	{
 		sminaIndex.map(smIndex.string(), true, true);
-		filesystem::path smData = dbpath / "sminaData";
+		boost::filesystem::path smData = dbpath / "sminaData";
 		sminaData.map(smData.string(), true, true);
 	}
 
 	//mids
-	filesystem::path mpath = dbpath;
+	boost::filesystem::path mpath = dbpath;
 	mpath /= "mids";
-	if(filesystem::exists(mpath)) //back-wards compat
+	if(boost::filesystem::exists(mpath)) //back-wards compat
 		midList.map(mpath.string(), true, true,true);
 
 	//length histogram
-	filesystem::path binpath = dbpath / "binCnts";
+	boost::filesystem::path binpath = dbpath / "binCnts";
 	binnedCnts.map(binpath.string(),true,false);
 	if(binnedCnts.length() == 0)
 	{
@@ -891,8 +891,8 @@ void PharmerDatabaseSearcher::initializeDatabases()
 	for (unsigned i = 0; i < n; i++)
 	{
 		string pname = string("pointData_") + lexical_cast<string> (i);
-		filesystem::path pdpath = dbpath / pname;
-		if(filesystem::exists(pdpath))
+		boost::filesystem::path pdpath = dbpath / pname;
+		if(boost::filesystem::exists(pdpath))
 			tripletDataArrays[i].map(pdpath.string(), true, true);
 	}
 
@@ -901,8 +901,8 @@ void PharmerDatabaseSearcher::initializeDatabases()
 	for (unsigned i = 0; i < n; i++)
 	{
 		string gname = string("geoData_") + lexical_cast<string> (i);
-		filesystem::path gpath = dbpath / gname;
-		if(filesystem::exists(gpath))
+		boost::filesystem::path gpath = dbpath / gname;
+		if(boost::filesystem::exists(gpath))
 			geoDataArrays[i].map(gpath.string(), true, true);
 	}
 

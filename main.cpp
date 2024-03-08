@@ -177,7 +177,7 @@ static void handle_pharma_cmd(const Pharmas& pharmas)
 				cerr << "Error opening output file " << outputFiles[i] << "\n";
 				exit(-1);
 			}
-			string ext = filesystem::extension(outputFiles[i]);
+			string ext = boost::filesystem::extension(outputFiles[i]);
 			if (ext == ".txt" || ext == "")
 				outfn = pharmaTxtOutput;
 			else if (ext == ".json")
@@ -192,28 +192,28 @@ static void handle_pharma_cmd(const Pharmas& pharmas)
 		}
 
 		//special case - convert  query to points
-		if (filesystem::extension(fname) == ".json"
-				|| filesystem::extension(fname) == ".ph4"
-				|| filesystem::extension(fname) == ".query"
-				|| filesystem::extension(fname) == ".txt"
-				|| filesystem::extension(fname) == ".pml")
+		if (boost::filesystem::extension(fname) == ".json"
+				|| boost::filesystem::extension(fname) == ".ph4"
+				|| boost::filesystem::extension(fname) == ".query"
+				|| boost::filesystem::extension(fname) == ".txt"
+				|| boost::filesystem::extension(fname) == ".pml")
 		{
 			ifstream in(fname.c_str());
 			vector<PharmaPoint> points;
 			Excluder excluder;
 
-			if (filesystem::extension(fname) == ".json"
-					|| filesystem::extension(fname) == ".query")
+			if (boost::filesystem::extension(fname) == ".json"
+					|| boost::filesystem::extension(fname) == ".query")
 			{
 				JSonQueryParser parser;
 				parser.parse(pharmas, in, points, excluder);
 			}
-			else if (filesystem::extension(fname) == ".ph4")
+			else if (boost::filesystem::extension(fname) == ".ph4")
 			{
 				PH4Parser parser;
 				parser.parse(pharmas, in, points, excluder);
 			}
-			else if (filesystem::extension(fname) == ".pml")
+			else if (boost::filesystem::extension(fname) == ".pml")
 			{
 				PMLParser parser;
 				parser.parse(pharmas, in, points, excluder);
@@ -286,7 +286,7 @@ static void handle_pharma_cmd(const Pharmas& pharmas)
 struct FilterDBCreate
 {
 	WeightRangeFilter filter;
-	shared_ptr<PharmerDatabaseCreator> db;
+	boost::shared_ptr<PharmerDatabaseCreator> db;
 
 	FilterDBCreate()
 	{
@@ -309,7 +309,7 @@ static void handle_dbcreate_cmd(const Pharmas& pharmas)
 	//create directories
 	for (unsigned i = 0, n = Database.size(); i < n; i++)
 	{
-		if (!filesystem::create_directory(Database[i]))
+		if (!boost::filesystem::create_directory(Database[i]))
 		{
 			cerr << "Unable to create database directory " << Database[i]
 					<< "\n";
@@ -323,7 +323,7 @@ static void handle_dbcreate_cmd(const Pharmas& pharmas)
 	for (unsigned i = 0, n = inputFiles.size(); i < n; i++)
 	{
 
-		if (!filesystem::exists(inputFiles[i].c_str()))
+		if (!boost::filesystem::exists(inputFiles[i].c_str()))
 		{
 			cerr << "Invalid input file: " << inputFiles[i] << "\n";
 			exit(-1);
@@ -335,7 +335,7 @@ static void handle_dbcreate_cmd(const Pharmas& pharmas)
 			exit(-1);
 		}
 
-		numBytes += filesystem::file_size(inputFiles[i]);
+		numBytes += boost::filesystem::file_size(inputFiles[i]);
 	}
 
 	double weightThresholds[] =
@@ -362,7 +362,7 @@ static void handle_dbcreate_cmd(const Pharmas& pharmas)
 				double max = weightThresholds[w];
 				WeightRangeFilter filter(min, max);
 				string dname = Database[d] + "/w" + lexical_cast<string>(min);
-				if (!filesystem::create_directory(dname))
+				if (!boost::filesystem::create_directory(dname))
 				{
 					cerr << "Unable to create database directory " << dname
 							<< "\n";
@@ -412,7 +412,7 @@ static void handle_dbcreate_cmd(const Pharmas& pharmas)
 				{
 					f.db->writeStats();
 				}
-				readBytes += filesystem::file_size(inputFiles[i]);
+				readBytes += boost::filesystem::file_size(inputFiles[i]);
 			}
 
 			BOOST_FOREACH(FilterDBCreate& f, dbs)
@@ -446,17 +446,17 @@ struct LoadDatabase
 	}
 
 	void operator()(vector<vector<MolWeightDatabase> >& databases, unsigned i,
-			filesystem::path dbpath)
+			boost::filesystem::path dbpath)
 	{
 		//look for sub directories, assume weight divided, have to sort first
 		vector<unsigned> weights;
-		for (filesystem::directory_iterator itr(dbpath), end_itr;
+		for (boost::filesystem::directory_iterator itr(dbpath), end_itr;
 				itr != end_itr; ++itr)
 		{
 			if (is_directory(itr->status())
-					&& filesystem::exists(itr->path() / "info"))
+					&& boost::filesystem::exists(itr->path() / "info"))
 			{
-				filesystem::path subdir = itr->path();
+				boost::filesystem::path subdir = itr->path();
 				int w;
 				sscanf(subdir.filename().c_str(), "w%d", &w);
 				weights.push_back(w);
@@ -468,9 +468,9 @@ struct LoadDatabase
 		for (unsigned j = 0, nw = weights.size(); j < nw; j++)
 		{
 			unsigned w = weights[j];
-			filesystem::path subdir = dbpath
+			boost::filesystem::path subdir = dbpath
 					/ (string("w" + lexical_cast<string>(w)));
-			shared_ptr<PharmerDatabaseSearcher> db(
+			boost::shared_ptr<PharmerDatabaseSearcher> db(
 					new PharmerDatabaseSearcher(subdir));
 			if (j > 0)
 				databases[i].back().max = w;
@@ -498,15 +498,15 @@ static void loadDatabases(vector<vector<MolWeightDatabase> >& databases,
 	thread_group loading_threads;
 	for (unsigned i = 0, n = Database.size(); i < n; i++)
 	{
-		filesystem::path dbpath(Database[i]);
-		if (!filesystem::is_directory(dbpath))
+		boost::filesystem::path dbpath(Database[i]);
+		if (!boost::filesystem::is_directory(dbpath))
 		{
 			cerr << "Invalid database directory path: " << Database[i] << "\n";
 			exit(-1);
 		}
 
 		loading_threads.add_thread(
-				new thread(ref(loaders[i]), ref(databases), i, dbpath));
+                                           new boost::thread(std::ref(loaders[i]), std::ref(databases), i, dbpath));
 	}
 	loading_threads.join_all();
 
@@ -578,7 +578,7 @@ static void handle_dbsearch_cmd()
 	for (unsigned i = 0, n = inputFiles.size(); i < n; i++)
 	{
 
-		if (!PharmerQuery::validFormat(filesystem::extension(inputFiles[i])))
+		if (!PharmerQuery::validFormat(boost::filesystem::extension(inputFiles[i])))
 		{
 			cerr << "Invalid extension for query file: " << inputFiles[i]
 					<< "\n";
@@ -593,7 +593,7 @@ static void handle_dbsearch_cmd()
 		}
 
 		PharmerQuery query(databases, qfile,
-				filesystem::extension(inputFiles[i]), params,
+				boost::filesystem::extension(inputFiles[i]), params,
 				NThreads * databases.size());
 
 		string err;
@@ -616,7 +616,7 @@ static void handle_dbsearch_cmd()
 		if (outputFiles.size() > 0)
 		{
 			string outname = outputFiles[i];
-			string oext = filesystem::extension(outname);
+			string oext = boost::filesystem::extension(outname);
 			ofstream out;
 
 			if (oext != ".sdf" && oext != ".txt" && oext != "" && oext != ".gz")

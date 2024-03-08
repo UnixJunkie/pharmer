@@ -79,8 +79,8 @@ class ReadMCMol
 				if(dollarcnt != 4)
 					return false;
 				data = d.str();
-				valid = *in;
-				return *in;
+				valid = in->eof();
+				return valid;
 			}
 			else
 			{

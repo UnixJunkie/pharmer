@@ -89,9 +89,9 @@ public:
 			posix_fadvise(fd, 0, 0, POSIX_FADV_NOREUSE);
 #endif
 		flags = readOnly ? PROT_READ : (PROT_READ | PROT_WRITE);
-		if (filesystem::file_size(fname) > 0)
+		if (boost::filesystem::file_size(fname) > 0)
 		{
-			size = filesystem::file_size(fname);
+			size = boost::filesystem::file_size(fname);
 			data = (T*) mmap(NULL, size, flags, (readOnly ? MAP_PRIVATE
 					: MAP_SHARED) |(populate ? MAP_POPULATE : 0) , fd, 0);
 		}

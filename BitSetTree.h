@@ -291,8 +291,10 @@ class BitSetTree
 
 	}
 
-	typedef Eigen::Matrix<float, 256, 256> M;
-	typedef Eigen::Matrix<float, 256, 1> V;
+	// typedef Eigen::Matrix<float, 256, 256> M;
+	// typedef Eigen::Matrix<float, 256, 1> V;
+        typedef Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> M;
+        typedef Eigen::Matrix<float, Eigen::Dynamic, 1> V;
 
 	struct FInfo
 	{
@@ -318,14 +320,18 @@ class BitSetTree
 	//compute the first principal component, and divide evenly
 	void splitpca(const vector<TripletFingerprint>& fingers, vector<TripletFingerprint>& left, vector<TripletFingerprint>& right)
 	{
-		M c = M::Zero();
-		V bcnt = V::Zero();
+                // M c = M::Zero();
+		// V bcnt = V::Zero();
+                M c = Eigen::MatrixXf::Zero(256, 256);
+                V bcnt = Eigen::MatrixXf::Zero(256, 1);
+
 		unsigned N = fingers.size();
 
 		for(unsigned i = 0; i < N; i++)
 		{
 			const TripletFingerprint& f = fingers[i];
-			V bits;
+			// V bits;
+                        V bits = Eigen::MatrixXf::Zero(256, 1);
 			setBits(f, bits);
 
 			bcnt += bits;
@@ -345,7 +351,8 @@ class BitSetTree
 		for(unsigned i = 0; i < N; i++)
 		{
 			finfos[i].pos = i;
-			V bits;
+			// V bits;
+                        V bits = Eigen::MatrixXf::Zero(256, 1);
 			setBits(fingers[i], bits);
 			finfos[i].val = evec.transpose() * bits;
 		}

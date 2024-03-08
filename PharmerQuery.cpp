@@ -44,7 +44,7 @@ static JSonQueryParser jsonParser;
 static PH4Parser ph4Parser;
 static PMLParser pmlParser;
 
-static unordered_map<string, QueryParser*> parsers = assign::map_list_of("",
+static boost::unordered_map<string, QueryParser*> parsers = assign::map_list_of("",
 		(QueryParser*) &textParser)(".txt", (QueryParser*) &textParser)(".json",
 		(QueryParser*) &jsonParser)(".query", (QueryParser*) &jsonParser)(
 		".ph4", (QueryParser*) &ph4Parser)(".pml", (QueryParser*) &pmlParser);
@@ -481,7 +481,7 @@ void PharmerQuery::reduceResults()
 {
 	if (params.reduceConfs != 0 && params.reduceConfs != UINT_MAX)
 	{
-		unordered_map<unsigned, unsigned> molCnts;
+                boost::unordered_map<unsigned, unsigned> molCnts;
 		vector<QueryResult*> newr;
 		newr.reserve(results.size());
 		for (unsigned i = 0, n = results.size(); i < n; i++)
